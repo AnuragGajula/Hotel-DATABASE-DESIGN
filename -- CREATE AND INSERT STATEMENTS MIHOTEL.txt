@@ -1,0 +1,249 @@
+-- CREATE AND INSERT 
+
+-- Hotel Table
+CREATE TABLE MiHotel (
+    Hotel_ID INT PRIMARY KEY,
+    Hotel_Address VARCHAR(255),
+    City VARCHAR(100),
+    State VARCHAR(100),
+    Zip_Code VARCHAR(20),
+    Phone_Number VARCHAR(20),
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+);
+
+-- Employee Table (Parent Table for HR and Manager)
+CREATE TABLE Employee (
+    Employee_ID INT PRIMARY KEY,
+    First_Name VARCHAR(100),
+    Middle_Name VARCHAR(100),
+    Last_Name VARCHAR(100),
+    Age INT,
+    Employee_Address VARCHAR(255),
+    State VARCHAR(100),
+    City VARCHAR(100),
+    Zip_Code VARCHAR(20),
+    Phone_Number VARCHAR(20),
+    Email VARCHAR(255),
+    User_ID VARCHAR(100) UNIQUE,
+    Employee_Password VARCHAR(255),
+    Hired_Date DATE,
+    Employee_Type ENUM('Manager', 'HR') NOT NULL,
+    Hotel_ID INT,
+    FOREIGN KEY (Hotel_ID) REFERENCES MiHotel(Hotel_ID),
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+);
+
+-- Job Posting Table
+CREATE TABLE Job_Posting (
+    Job_ID INT PRIMARY KEY,
+    Position_Title VARCHAR(150),
+    Job_Description TEXT,
+    Date_Posted DATE,
+    HR_Employee_ID INT,
+    Hotel_ID INT,
+    Status ENUM('Open', 'Closed') DEFAULT 'Open',
+    FOREIGN KEY (HR_Employee_ID) REFERENCES Employee(Employee_ID),
+    FOREIGN KEY (Hotel_ID) REFERENCES MiHotel(Hotel_ID),
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+);
+
+-- Applicant Table
+CREATE TABLE Applicant (
+    Applicant_ID INT PRIMARY KEY,
+    First_Name VARCHAR(100),
+    Middle_Name VARCHAR(100),
+    Last_Name VARCHAR(100),
+    Alternate_Name VARCHAR(100),
+    Birth_Date DATE,
+    Home_Address VARCHAR(255),
+    Apt_Number VARCHAR(50),
+    City VARCHAR(100),
+    State VARCHAR(100),
+    Zip_Code VARCHAR(20),
+    Phone_Number VARCHAR(20),
+    Email VARCHAR(255),
+    Applicant_Password VARCHAR(255),
+    Preferred_Call_Time VARCHAR(50),
+    Over18 BOOLEAN,
+    Work_Eligibility_Proof BOOLEAN,
+    Drivers_License_Number VARCHAR(100),
+    Speak_Foreign_Languages TEXT,
+    Read_Write_Languages TEXT,
+    Currently_Work_For_MiHotel BOOLEAN,
+    Previously_Worked_At_MiHotel BOOLEAN,
+    Other_Information TEXT,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+);
+
+-- Application Table
+CREATE TABLE Application (
+    Application_ID INT PRIMARY KEY,
+    Applicant_ID INT,
+    Job_ID INT,
+    Submitted_Date DATE,
+    Start_Date DATE,
+    Desired_Pay DECIMAL(10,2),
+    Availability_Days VARCHAR(100),
+    Availability_Time VARCHAR(100),
+    Manager_ID INT,
+    Applicant_Initials VARCHAR(10),
+    Application_Status ENUM('Pending', 'Reviewed', 'Accepted', 'Rejected') DEFAULT 'Pending',
+    FOREIGN KEY (Applicant_ID) REFERENCES Applicant(Applicant_ID),
+    FOREIGN KEY (Job_ID) REFERENCES Job_Posting(Job_ID),
+    FOREIGN KEY (Manager_ID) REFERENCES Employee(Employee_ID),
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+);
+
+-- Offers Table
+CREATE TABLE Offer (
+    Offer_ID INT PRIMARY KEY,
+    Offer_Date DATE,
+    Job_Type VARCHAR(100),
+    Position_Title VARCHAR(150),
+    Position_Type VARCHAR(100),
+    Pay_Rate DECIMAL(10,2),
+    Job_Start_Date DATE,
+    Job_Location VARCHAR(255),
+    Application_ID INT,
+    Offer_Status ENUM('Offered', 'Declined', 'Accepted') DEFAULT 'Offered',
+    Applicant_Decision ENUM('Pending', 'Accepted', 'Declined') DEFAULT 'Pending',
+    created_by_employee_id INT,
+    updated_by_employee_id INT,
+    FOREIGN KEY (Application_ID) REFERENCES Application(Application_ID),
+    FOREIGN KEY (created_by_employee_id) REFERENCES Employee(Employee_ID),
+    FOREIGN KEY (updated_by_employee_id) REFERENCES Employee(Employee_ID),
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+);
+
+-- Education Table
+CREATE TABLE Education (
+    Education_ID INT PRIMARY KEY,
+    Applicant_ID INT,
+    Level_of_Education VARCHAR(100),
+    School_Name VARCHAR(255),
+    Location VARCHAR(255),
+    Years_Completed INT,
+    Graduated BOOLEAN,
+    Subjects_Studied VARCHAR(255),
+    FOREIGN KEY (Applicant_ID) REFERENCES Applicant(Applicant_ID)
+);
+
+-- Employment History Table
+CREATE TABLE Employment_History (
+    EmploymentHistory_ID INT PRIMARY KEY,
+    Applicant_ID INT,
+    Start_Date DATE,
+    End_Date DATE,
+    Employer VARCHAR(255),
+    Supervisor_Name VARCHAR(100),
+    Supervisor_Phone VARCHAR(20),
+    Reason_For_Leaving VARCHAR(255),
+    FOREIGN KEY (Applicant_ID) REFERENCES Applicant(Applicant_ID)
+);
+
+-- Professional References Table
+CREATE TABLE Professional_Reference (
+    ProfessionalReference_ID INT PRIMARY KEY,
+    Applicant_ID INT,
+    Reference_Name VARCHAR(100),
+    Relationship VARCHAR(100),
+    Occupation VARCHAR(100),
+    Years_Known INT,
+    Phone_Number VARCHAR(20),
+    FOREIGN KEY (Applicant_ID) REFERENCES Applicant(Applicant_ID)
+);
+
+-- Military Service Table
+CREATE TABLE Military_Service (
+    MilitaryService_ID INT PRIMARY KEY,
+    Applicant_ID INT,
+    Start_Date DATE,
+    End_Date DATE,
+    Branch VARCHAR(100),
+    Military_Rank VARCHAR(100),
+    National_Guard BOOLEAN,
+    FOREIGN KEY (Applicant_ID) REFERENCES Applicant(Applicant_ID)
+);
+
+-- Conviction Table (Multiple allowed per applicant)
+CREATE TABLE Conviction (
+    Conviction_ID INT PRIMARY KEY,
+    Applicant_ID INT,
+    Convicted_Reason TEXT,
+    Conviction_Date DATE,
+    Convicted_State VARCHAR(100),
+    FOREIGN KEY (Applicant_ID) REFERENCES Applicant(Applicant_ID)
+);
+
+
+--- INSERT
+
+-- Insert into MiHotel
+INSERT INTO MiHotel (Hotel_ID, Hotel_Address, City, State, Zip_Code, Phone_Number)
+VALUES
+(1, '123 Main St', 'Chicago', 'Illinois', '60601', '312-555-1234'),
+(2, '456 Broadway', 'New York', 'New York', '10007', '212-555-5678');
+
+-- Insert into Employee
+INSERT INTO Employee (Employee_ID, First_Name, Middle_Name, Last_Name, Age, Employee_Address, State, City, Zip_Code, Phone_Number, Email, User_ID, Employee_Password, Hired_Date, Employee_Type, Hotel_ID)
+VALUES
+(101, 'John', 'M', 'Doe', 35, '789 Maple St', 'Illinois', 'Chicago', '60601', '312-555-2345', 'john.doe@example.com', 'jdoe101', 'hashedpassword123', '2022-05-15', 'Manager', 1),
+(102, 'Jane', 'A', 'Smith', 30, '987 Oak St', 'New York', 'New York', '10007', '212-555-6789', 'jane.smith@example.com', 'jsmith102', 'hashedpassword456', '2022-07-10', 'HR', 2);
+
+-- Insert into Job_Posting
+INSERT INTO Job_Posting (Job_ID, Position_Title, Job_Description, Date_Posted, HR_Employee_ID, Hotel_ID, Status)
+VALUES
+(201, 'Front Desk Clerk', 'Handle front desk operations', '2024-04-01', 102, 1, 'Open'),
+(202, 'Housekeeping Staff', 'Maintain cleanliness of hotel rooms', '2024-04-05', 102, 2, 'Open');
+
+-- Insert into Applicant
+INSERT INTO Applicant (Applicant_ID, First_Name, Middle_Name, Last_Name, Alternate_Name, Birth_Date, Home_Address, Apt_Number, City, State, Zip_Code, Phone_Number, Email, Applicant_Password, Preferred_Call_Time, Over18, Work_Eligibility_Proof, Drivers_License_Number, Speak_Foreign_Languages, Read_Write_Languages, Currently_Work_For_MiHotel, Previously_Worked_At_MiHotel, Other_Information)
+VALUES
+(301, 'Emily', 'B', 'Johnson', '', '1998-06-15', '321 Pine St', 'Apt 5', 'Chicago', 'Illinois', '60601', '312-555-6789', 'emily.johnson@example.com', 'hashedpass789', 'Morning', TRUE, TRUE, 'IL1234567', 'Spanish', 'Spanish', FALSE, FALSE, ''),
+(302, 'Michael', 'C', 'Brown', '', '1995-11-22', '654 Elm St', 'Apt 12', 'New York', 'New York', '10007', '212-555-3456', 'michael.brown@example.com', 'hashedpass101', 'Evening', TRUE, TRUE, 'NY7654321', 'French', 'French', FALSE, TRUE, '');
+
+-- Insert into Application
+INSERT INTO Application (Application_ID, Applicant_ID, Job_ID, Submitted_Date, Start_Date, Desired_Pay, Availability_Days, Availability_Time, Manager_ID, Applicant_Initials, Application_Status)
+VALUES
+(401, 301, 201, '2024-04-10', '2024-05-01', 18.50, 'Weekdays', 'Morning', 101, 'EJ', 'Pending'),
+(402, 302, 202, '2024-04-11', '2024-05-05', 16.00, 'Weekends', 'Evening', 101, 'MB', 'Pending');
+
+-- Insert into Offer
+INSERT INTO Offer (Offer_ID, Offer_Date, Job_Type, Position_Title, Position_Type, Pay_Rate, Job_Start_Date, Job_Location, Application_ID, Offer_Status, Applicant_Decision, created_by_employee_id, updated_by_employee_id)
+VALUES
+(501, '2024-04-15', 'Full-Time', 'Front Desk Clerk', 'Permanent', 18.50, '2024-05-01', '123 Main St, Chicago', 401, 'Offered', 'Pending', 102, 102),
+(502, '2024-04-18', 'Part-Time', 'Housekeeping Staff', 'Temporary', 16.00, '2024-05-05', '456 Broadway, New York', 402, 'Offered', 'Pending', 102, 102);
+
+-- Insert into Education
+INSERT INTO Education (Education_ID, Applicant_ID, Level_of_Education, School_Name, Location, Years_Completed, Graduated, Subjects_Studied)
+VALUES
+(601, 301, 'Bachelor', 'University of Illinois', 'Chicago, IL', 4, TRUE, 'Hospitality Management'),
+(602, 302, 'Associate', 'NY Community College', 'New York, NY', 2, TRUE, 'Business Administration');
+
+-- Insert into Employment_History
+INSERT INTO Employment_History (EmploymentHistory_ID, Applicant_ID, Start_Date, End_Date, Employer, Supervisor_Name, Supervisor_Phone, Reason_For_Leaving)
+VALUES
+(701, 301, '2020-01-01', '2022-01-01', 'Hotel A', 'Mr. Lee', '312-555-2222', 'Career growth'),
+(702, 302, '2019-05-01', '2021-11-01', 'Resort B', 'Ms. Green', '212-555-3333', 'Relocation');
+
+-- Insert into Professional_Reference
+INSERT INTO Professional_Reference (ProfessionalReference_ID, Applicant_ID, Reference_Name, Relationship, Occupation, Years_Known, Phone_Number)
+VALUES
+(801, 301, 'Sarah White', 'Former Manager', 'Hotel Manager', 3, '312-555-4444'),
+(802, 302, 'David King', 'Mentor', 'HR Manager', 4, '212-555-5555');
+
+-- Insert into Military_Service
+INSERT INTO Military_Service (MilitaryService_ID, Applicant_ID, Start_Date, End_Date, Branch, Military_Rank, National_Guard)
+VALUES
+(901, 302, '2015-06-01', '2019-06-01', 'Army', 'Sergeant', TRUE);
+
+-- Insert into Conviction
+INSERT INTO Conviction (Conviction_ID, Applicant_ID, Convicted_Reason, Conviction_Date, Convicted_State)
+VALUES
+(1001, 301, 'None', NULL, NULL);  -- Example: No convictions
