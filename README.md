@@ -64,3 +64,7 @@ Conviction	Criminal history information
 3NF: No transitive dependencies
 
 BCNF (optional): Further normalized structures like applicant languages
+
+>> ER Diagram
+![image](https://github.com/user-attachments/assets/80d8d4bd-1724-44ca-be16-06ab70585bb0)
+
